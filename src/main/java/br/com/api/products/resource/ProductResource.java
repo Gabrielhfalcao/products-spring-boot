@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.api.products.service.ProductService;
-import br.com.api.products.service.exceptions.ProductNotFoundException;
+import br.com.api.products.service.exceptions.ProductException;
 import br.com.api.products.service.exceptions.ProductValidationException;
 
 @RestController
@@ -39,7 +39,7 @@ public class ProductResource {
 	}
 
 	@GetMapping(value = "/products/{id}")
-	public ResponseEntity<ProductResponse> findById(@PathVariable Long id) throws ProductNotFoundException {
+	public ResponseEntity<ProductResponse> findById(@PathVariable Long id) throws ProductException {
 
 		ProductResponse productResponse = productService.findById(id);
 
@@ -55,9 +55,9 @@ public class ProductResource {
 		return ResponseEntity.status(HttpStatus.CREATED).body(productResponse);
 	}
 
-	@PutMapping(value = "/products")
+	@PutMapping(value = "/products/{id}")
 	public ResponseEntity<ProductResponse> updateById(@RequestBody ProductRequest productRequest, @PathVariable Long id)
-			throws ProductNotFoundException, ProductValidationException {
+			throws ProductException, ProductValidationException {
 
 		ProductResponse product = this.productService.update(new ProductRequest(id, productRequest));
 

@@ -1,20 +1,29 @@
 package br.com.api.products.service.validations;
 
-enum ValidationMessages {
+public enum ValidationMessages {
 
-    PRODUCT_NOT_FOUND("Product not found"),
-    PRODUCT_NAME_CANT_BE_EMPTY("Product Name can not be empty"),
-    PRODUCT_BRAND_CANT_BE_EMPTY("Product Brand can not be empty")
-    ;
+    PRODUCT_NOT_FOUND("PROD_V_00001", "Product not found"),
+    PRODUCT_NAME_CANT_BE_EMPTY("PROD_V_00002", "Product Name can not be empty"),
+    PRODUCT_BRAND_CANT_BE_EMPTY("PROD_V_00003", "Product Brand can not be empty");
 
+    private String code;
     private String message;
 
-    ValidationMessages(String msg) {
-        message = msg;
+    ValidationMessages(String code, String msg) {
+        this.code = code;
+        this.message = msg;
+    }
+
+    public String code() {
+        return this.code;
+    }
+
+    public String message() {
+        return this.message;
     }
 
     @Override
     public String toString() {
-        return this.message;
+        return String.format("Validation {} - {}", this.code, this.message);
     }
 }
