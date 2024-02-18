@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.api.products.exceptions.ProductException;
 import br.com.api.products.service.ProductService;
-import br.com.api.products.service.exceptions.ProductException;
-import br.com.api.products.service.exceptions.ProductValidationException;
 
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping
-// TODO: To add Handle Exception https://www.baeldung.com/exception-handling-for-rest-with-spring
+// TODO: To add Handle Exception
+// https://www.baeldung.com/exception-handling-for-rest-with-spring
 public class ProductResource {
 
 	private ProductService productService;
@@ -47,8 +47,7 @@ public class ProductResource {
 	}
 
 	@PostMapping(value = "/products")
-	public ResponseEntity<ProductResponse> insert(@RequestBody ProductRequest productRequest)
-			throws ProductValidationException {
+	public ResponseEntity<ProductResponse> insert(@RequestBody ProductRequest productRequest) {
 
 		ProductResponse productResponse = productService.insert(productRequest);
 
@@ -57,7 +56,7 @@ public class ProductResource {
 
 	@PutMapping(value = "/products/{id}")
 	public ResponseEntity<ProductResponse> updateById(@RequestBody ProductRequest productRequest, @PathVariable Long id)
-			throws ProductException, ProductValidationException {
+			throws ProductException {
 
 		ProductResponse product = this.productService.update(new ProductRequest(id, productRequest));
 

@@ -5,14 +5,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import br.com.api.products.exceptions.ExceptionMessages;
+import br.com.api.products.exceptions.ProductException;
 import br.com.api.products.model.Product;
 import br.com.api.products.repository.ProductRepository;
 import br.com.api.products.resource.ProductRequest;
 import br.com.api.products.resource.ProductResponse;
-import br.com.api.products.service.exceptions.ProductException;
-import br.com.api.products.service.exceptions.ProductValidationException;
 import br.com.api.products.service.validations.ProductCreationValidation;
-import br.com.api.products.service.validations.ValidationMessages;
 
 @Service
 public class ProductService {
@@ -35,13 +34,13 @@ public class ProductService {
 	public ProductResponse findById(long id) throws ProductException {
 
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new ProductException(ValidationMessages.PRODUCT_NOT_FOUND.code(),
-						ValidationMessages.PRODUCT_NOT_FOUND.message()));
+				.orElseThrow(() -> new ProductException(ExceptionMessages.PRODUCT_NOT_FOUND.code(),
+						ExceptionMessages.PRODUCT_NOT_FOUND.message()));
 
 		return new ProductResponse(product.getId(), product.getName(), product.getBrand());
 	}
 
-	public ProductResponse insert(ProductRequest productRequest) throws ProductValidationException {
+	public ProductResponse insert(ProductRequest productRequest) {
 
 		// TODO: Replace use the of "new" for dependencu inversion.
 		new ProductCreationValidation().validate(productRequest);
@@ -53,15 +52,15 @@ public class ProductService {
 	}
 
 	public ProductResponse update(ProductRequest productRequest)
-			throws ProductException, ProductValidationException {
+			throws ProductException {
 
 		if (productRequest.getId() == null || productRequest.getId() <= 0) {
-			throw new ProductValidationException("Product ID invalid");
+			throw new ProductException(ExceptionMessages.PRODUCT_ID_INVALID.code(), ExceptionMessages.PRODUCT_ID_INVALID.message());
 		}
 
 		Product product = productRepository.findById(productRequest.getId().longValue())
-				.orElseThrow(() -> new ProductException(ValidationMessages.PRODUCT_NOT_FOUND.code(),
-						ValidationMessages.PRODUCT_NOT_FOUND.message()));
+				.orElseThrow(() -> new ProductException(ExceptionMessages.PRODUCT_NOT_FOUND.code(),
+						ExceptionMessages.PRODUCT_NOT_FOUND.message()));
 
 		// TODO: No update if the values are null or empty
 		product.setName(productRequest.getName());
@@ -75,8 +74,8 @@ public class ProductService {
 	public void deleteById(long id) {
 
 		productRepository.findById(id)
-				.orElseThrow(() -> new ProductException(ValidationMessages.PRODUCT_NOT_FOUND.code(),
-						ValidationMessages.PRODUCT_NOT_FOUND.message()));
+				.orElseThrow(() -> new ProductException(ExceptionMessages.PRODUCT_NOT_FOUND.code(),
+						ExceptionMessages.PRODUCT_NOT_FOUND.message()));
 
 		// TODO: Perhaps, we can deactivate the product instead of delete using an extra
 		// column (active) in the table product.

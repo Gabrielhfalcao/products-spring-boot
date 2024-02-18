@@ -6,15 +6,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import br.com.api.products.service.exceptions.ProductException;
+import br.com.api.products.exceptions.ProductException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ProductException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<CustomErrorResponse> handleProductException(ProductException ex) {
-        CustomErrorResponse response = new CustomErrorResponse(ex.getErrorCode(), ex.getErrorMessage());
+    public ResponseEntity<CustomExceptionResponse> handleProductException(ProductException ex) {
+        CustomExceptionResponse response = new CustomExceptionResponse(ex.getErrorCode(), ex.getErrorMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

@@ -1,4 +1,4 @@
-package br.com.api.products.service.exceptions;
+package br.com.api.products.exceptions;
 
 public class ProductException extends RuntimeException {
 
