@@ -10,8 +10,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name="produtos")
-
 public class Product {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -22,8 +22,13 @@ public class Product {
 	}
 
 	public Product(Long id, String name, String brand) {
-		super();
 		this.id = id;
+		this.name = name;
+		this.brand = brand;
+	}
+
+	public Product(String name, String brand) {
+		this(null, name, brand);
 		this.name = name;
 		this.brand = brand;
 	}

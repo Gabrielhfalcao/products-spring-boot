@@ -2,7 +2,6 @@ package br.com.api.products.resource;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,42 +13,60 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.api.products.model.Product;
 import br.com.api.products.service.ProductService;
-
+import br.com.api.products.service.exceptions.ProductNotFoundException;
+import br.com.api.products.service.exceptions.ProductValidationException;
 
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping
+// TODO: To add Handle Exception https://www.baeldung.com/exception-handling-for-rest-with-spring
 public class ProductResource {
-	
-	@Autowired
-	private ProductService ps;
-	
+
+	private ProductService productService;
+
+	public ProductResource(ProductService productService) {
+		this.productService = productService;
+	}
+
 	@GetMapping(value = "/products")
-	public ResponseEntity<List<Product>> findAll(){
-		List<Product> products = ps.findAll();
-		return ResponseEntity.ok().body(products);
+	public ResponseEntity<List<ProductResponse>> findAll() {
+
+		List<ProductResponse> products = productService.findAll();
+
+		return ResponseEntity.ok(products);
 	}
-	
+
 	@GetMapping(value = "/products/{id}")
-	public ResponseEntity<?> findById(@PathVariable Long id){
-		return ps.findById(id);
+	public ResponseEntity<ProductResponse> findById(@PathVariable Long id) throws ProductNotFoundException {
+
+		ProductResponse productResponse = productService.findById(id);
+
+		return ResponseEntity.ok(productResponse);
 	}
-	
-	@PostMapping(value = "/register")
-	public ResponseEntity<?> insert(@RequestBody Product product){
-		return ps.insert(product);
+
+	@PostMapping(value = "/products")
+	public ResponseEntity<ProductResponse> insert(@RequestBody ProductRequest productRequest)
+			throws ProductValidationException {
+
+		ProductResponse productResponse = productService.insert(productRequest);
+
+		return ResponseEntity.ok(productResponse);
 	}
-	
-	@PutMapping(value = "/update/{id}")
-	public ResponseEntity<?> updateById(@RequestBody Product product, @PathVariable Long id){
-		return ps.updateById(product, id);
+
+	@PutMapping(value = "/products")
+	public ResponseEntity<ProductResponse> updateById(@RequestBody ProductRequest productRequest, @PathVariable Long id)
+			throws ProductNotFoundException, ProductValidationException {
+
+		ProductResponse product = this.productService.update(new ProductRequest(id, productRequest));
+
+		return ResponseEntity.ok(product);
 	}
-	
-	@DeleteMapping(value = "/delete/{id}")
-	public ResponseEntity<?> deleteById(@PathVariable Long id){
-		return ps.deleteById(id);
+
+	@DeleteMapping(value = "/products/{id}")
+	public ResponseEntity<ProductResponse> deleteById(@PathVariable Long id) {
+		this.productService.deleteById(id);
+		return ResponseEntity.ok().build();
 	}
-	
+
 }

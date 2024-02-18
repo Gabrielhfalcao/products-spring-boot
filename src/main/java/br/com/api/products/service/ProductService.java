@@ -1,73 +1,83 @@
 package br.com.api.products.service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import br.com.api.products.model.Product;
-import br.com.api.products.model.ResponseModel;
 import br.com.api.products.repository.ProductRepository;
+import br.com.api.products.resource.ProductRequest;
+import br.com.api.products.resource.ProductResponse;
+import br.com.api.products.service.exceptions.ProductNotFoundException;
+import br.com.api.products.service.exceptions.ProductValidationException;
+import br.com.api.products.service.validations.ProductCreationValidation;
 
 @Service
 public class ProductService {
-	@Autowired
-	private ProductRepository pr;
 
-	@Autowired
-	private ResponseModel rm;
+	private ProductRepository productRepository;
 
-	public List<Product> findAll() {
-		List<Product> products = pr.findAll();
-		return products;
+	public ProductService(ProductRepository productRepository) {
+		this.productRepository = productRepository;
 	}
 
-	public ResponseEntity<?> findById(Long id) {
-		Optional<Product> product = pr.findById(id);
-		if (product.isEmpty()) {
-			rm.setMessage("the id not exists!");
-			return new ResponseEntity<ResponseModel>(rm, HttpStatus.NO_CONTENT);
-		} else {
-			Product prod = product.get();
-			return new ResponseEntity<Product>(prod, HttpStatus.OK);
-		}
+	public List<ProductResponse> findAll() {
+
+		return productRepository.findAll().stream()
+				.map(p -> {
+					return new ProductResponse(p.getName(), p.getBrand());
+				})
+				.collect(Collectors.toList());
 	}
 
-	public ResponseEntity<?> insert(Product product) {
-		if (product.getName() == "") {
-			rm.setMessage("the product name is mandatory");
-			return new ResponseEntity<ResponseModel>(rm, HttpStatus.BAD_REQUEST);
-		} else if (product.getBrand() == "") {
-			rm.setMessage("the product brand name is mandatory");
-			return new ResponseEntity<ResponseModel>(rm, HttpStatus.BAD_REQUEST);
-		}
-		return new ResponseEntity<Product>(pr.save(product), HttpStatus.CREATED);
+	public ProductResponse findById(long id) throws ProductNotFoundException {
+
+		Product product = productRepository.findById(id)
+				.orElseThrow(() -> new ProductNotFoundException());
+
+		return new ProductResponse(product.getName(), product.getBrand());
 	}
 
-	public ResponseEntity<?> updateById(Product product, Long id) {
-		Optional<Product> prod = pr.findById(id);
-		if (prod.isEmpty()) {
-			rm.setMessage("the id not exists!");
-			return new ResponseEntity<ResponseModel>(rm, HttpStatus.NO_CONTENT);
-		} else {
-			Product pd = pr.getReferenceById(id);
-			pd.setName(product.getName());
-			pd.setBrand(product.getBrand());
-			return new ResponseEntity<Product>(pr.save(pd), HttpStatus.OK);
-		}
+	public ProductResponse insert(ProductRequest productRequest) throws ProductValidationException {
+
+		// TODO: It is required to avoid the of the "new". Need to be injected intead of created (new)
+		new ProductCreationValidation().validate(productRequest);	
+
+		Product productPersisted = productRepository
+				.save(new Product(productRequest.getName(), productRequest.getBrand()));
+
+		return new ProductResponse(productPersisted.getName(), productPersisted.getBrand());
 	}
 
-	public ResponseEntity<?> deleteById(Long id) {
-		Optional<Product> product = pr.findById(id);
-		if (product.isEmpty()) {
-			rm.setMessage("the id not exists!");
-			return new ResponseEntity<ResponseModel>(rm, HttpStatus.NO_CONTENT);
-		} else {
-			pr.deleteById(id);
-			return new ResponseEntity<Product>(product.get(), HttpStatus.OK);
+	public ProductResponse update(ProductRequest productRequest)
+			throws ProductNotFoundException, ProductValidationException {
+
+		if (productRequest.getId() == null || productRequest.getId() <= 0) {
+			throw new ProductValidationException("Product ID invalid");
 		}
+
+		Product product = productRepository.findById(productRequest.getId().longValue())
+				.orElseThrow(ProductNotFoundException::new);
+
+		product.setName(productRequest.getName());
+		product.setBrand(productRequest.getBrand());
+
+		this.productRepository.save(product);
+
+		return new ProductResponse(product.getId(), product.getName(), product.getBrand());
+	}
+
+	public void deleteById(long id) {
+
+		productRepository.findById(id)
+				.orElseThrow(ProductNotFoundException::new);
+
+		// TODO: Perhaps, we can deactivate the product instead of delete using an extra
+		// column (active) in the table product.
+		// product.setActive(false);
+		// productRepository.save(product);
+
+		productRepository.deleteById(id);
 	}
 }
