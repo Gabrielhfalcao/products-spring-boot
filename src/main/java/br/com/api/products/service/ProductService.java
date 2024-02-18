@@ -41,7 +41,7 @@ public class ProductService {
 
 	public ProductResponse insert(ProductRequest productRequest) throws ProductValidationException {
 
-		// TODO: It is required to avoid the of the "new". Need to be injected intead of created (new)
+		// TODO: Replace use the of "new" for dependencu inversion.
 		new ProductCreationValidation().validate(productRequest);	
 
 		Product productPersisted = productRepository

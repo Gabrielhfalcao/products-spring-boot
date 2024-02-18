@@ -2,6 +2,7 @@ package br.com.api.products.resource;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,7 +52,7 @@ public class ProductResource {
 
 		ProductResponse productResponse = productService.insert(productRequest);
 
-		return ResponseEntity.ok(productResponse);
+		return ResponseEntity.status(HttpStatus.CREATED).body(productResponse);
 	}
 
 	@PutMapping(value = "/products")
@@ -64,9 +65,9 @@ public class ProductResource {
 	}
 
 	@DeleteMapping(value = "/products/{id}")
-	public ResponseEntity<ProductResponse> deleteById(@PathVariable Long id) {
+	public ResponseEntity<?> deleteById(@PathVariable Long id) {
 		this.productService.deleteById(id);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.noContent().build();
 	}
 
 }
