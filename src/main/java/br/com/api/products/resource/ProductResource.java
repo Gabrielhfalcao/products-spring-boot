@@ -3,6 +3,7 @@ package br.com.api.products.resource;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,7 +47,7 @@ public class ProductResource {
 		return ResponseEntity.ok(productResponse);
 	}
 
-	@PostMapping(value = "/products")
+	@PostMapping(value = "/products", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<ProductResponse> insert(@RequestBody ProductRequest productRequest) {
 
 		ProductResponse productResponse = productService.insert(productRequest);

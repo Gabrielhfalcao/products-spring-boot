@@ -31,4 +31,18 @@ public class ProductResponse {
     public String getBrand() {
         return brand;
     }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    
 }
